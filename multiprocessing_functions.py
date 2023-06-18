@@ -15,7 +15,8 @@ from gc import collect as del_mem
 #own
 from spaceglider import spaceglider
 from autosmite import autosmite
-from drawings import drawings
+# from drawings import drawings
+from new_drawings import drawings
 from data import Data, Offsets
 from manager import ReadManager
 from stats import Stats
