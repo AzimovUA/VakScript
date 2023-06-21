@@ -6,8 +6,7 @@ def spaceglider(terminate, settings, champion_pointers, minion_pointers, on_wind
     ssl._create_default_https_context = ssl._create_unverified_context
     
     #ext
-    from pyMeow import open_process, get_module
-    from pyMeow import r_uint64, r_string
+    from pymem import Pymem
     from win32api import GetSystemMetrics, GetAsyncKeyState, mouse_event
     from win32con import MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP
     from time import sleep
@@ -33,16 +32,16 @@ def spaceglider(terminate, settings, champion_pointers, minion_pointers, on_wind
         if on_window.value:
             del_mem()
             try:
-                process = open_process(process=Data.game_name_executable)
-                base_address = get_module(process, Data.game_name_executable)['base']
-                local = r_uint64(process, base_address + Offsets.local_player)
-                local_name = r_string(process, local + Offsets.obj_name)
+                pm = Pymem(Data.game_name_executable)
+                base_address = pm.base_address
+                local = pm.read_ulonglong(base_address + Offsets.local_player)
+                local_name = pm.read_string(local + Offsets.obj_name)
                 stats = Stats()
                 entity = Entity(stats)
-                attr = ReadAttributes(process, base_address)
-                orbwalk = Orbwalk(process, base_address)
+                attr = ReadAttributes(pm, base_address)
+                orbwalk = Orbwalk(pm, base_address)
                 width, height = GetSystemMetrics(0), GetSystemMetrics(1)
-                world = World(process, base_address, width, height)
+                world = World(pm, base_address, width, height)
 
                 #player stats
                 attack_speed_base = stats.get_attack_speed_base(local_name)

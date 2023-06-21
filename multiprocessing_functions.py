@@ -6,8 +6,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 #ext
 from multiprocessing import Process, Value
-from pyMeow import open_process, get_module
-from pyMeow import r_uint64, r_int
+from pymem import Pymem
 from time import sleep
 from json import load
 from gc import collect as del_mem
@@ -74,12 +73,11 @@ class MultiprocessingFunctions:
         while not self.updater_terminate.value:
             del_mem()
             try:
-                name_exec = Data.game_name_executable
-                process = open_process(process=name_exec)
-                base_address = get_module(process, name_exec)['base']
-                local_player = r_uint64(process, base_address + Offsets.local_player)
-                local_team = r_int(process, local_player + Offsets.obj_team)
-                read_pointers = ReadManager(process, base_address)
+                pm = Pymem(Data.game_name_executable)
+                base_address = pm.base_address
+                local_player = pm.read_ulonglong(base_address + Offsets.local_player)
+                local_team = pm.read_int(local_player + Offsets.obj_team)
+                read_pointers = ReadManager(pm, base_address)
                 stats = Stats()
 
             except:

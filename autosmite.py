@@ -6,8 +6,7 @@ def autosmite(terminate, settings, jungle_pointers, on_window):
     ssl._create_default_https_context = ssl._create_unverified_context
 
     #ext
-    from pyMeow import open_process, get_module
-    from pyMeow import r_int, r_float
+    from pymem import Pymem
     from win32api import GetSystemMetrics
     from orjson import loads
     from urllib.request import urlopen
@@ -60,31 +59,31 @@ def autosmite(terminate, settings, jungle_pointers, on_window):
         if on_window.value:
             del_mem()
             try:
-                process = open_process(process=Data.game_name_executable)
-                base_address = get_module(process, Data.game_name_executable)["base"]
+                pm = Pymem(Data.game_name_executable)
+                base_address = pm.base_address
                 username = quote(get_username())
                 url_request = f"https://127.0.0.1:2999/liveclientdata/playersummonerspells?summonerName={username}"
                 smite_key, update_key = get_settings()
                 damage = get_damage(rawNames, url_request)
 
                 width, height = GetSystemMetrics(0), GetSystemMetrics(1)
-                world = World(process, base_address, width, height)
+                world = World(pm, base_address, width, height)
                 world_to_screen = world.world_to_screen_limited
                 get_view_proj_matrix = world.get_view_proj_matrix
 
-                def read_attr(process, address, nt):
+                def read_attr(pm, address, nt):
                     d = dict()
-                    d["health"] = r_float(process, address + obj_health)
-                    d["is_alive"] = r_int(process, address + obj_spawn_count) % 2 == 0
-                    d["x"] = r_float(process, address + obj_x)
-                    d["y"] = r_float(process, address + obj_y)
-                    d["z"] = r_float(process, address + obj_z)
+                    d["health"] = pm.read_float(address + obj_health)
+                    d["is_alive"] = pm.read_int(address + obj_spawn_count) % 2 == 0
+                    d["x"] = pm.read_float(address + obj_x)
+                    d["y"] = pm.read_float(address + obj_y)
+                    d["z"] = pm.read_float(address + obj_z)
 
                     return nt(**d)
 
                 nt = namedtuple('Attributes', 'health is_alive x y z')
                 while 1:
-                    targets = [read_attr(process, pointer, nt) for pointer in jungle_pointers]
+                    targets = [read_attr(pm, pointer, nt) for pointer in jungle_pointers]
                     target = [entity for entity in targets if entity.health <= damage and entity.is_alive]
 
                     if target:

@@ -1,14 +1,13 @@
 #ext
 from numpy import array, frombuffer, float32
-from pyMeow import r_bytes
 
 #own
 from data import Offsets
 
 class World:
 
-    def __init__(self, process, base_address, width, height):
-        self.process = process
+    def __init__(self, pm, base_address, width, height):
+        self.pm = pm
         self.base_address = base_address
         self.width = width
         self.height = height
@@ -18,7 +17,7 @@ class World:
         return array(floats).reshape(4,4)
     
     def get_view_proj_matrix(self):
-        data = r_bytes(self.process, self.base_address + self.view_proj_matrix, 0x128)
+        data = self.pm.read_bytes(self.base_address + self.view_proj_matrix, 0x128)
         view_matrix = self._list_to_matrix(frombuffer(data[:64], dtype=float32))
         proj_matrix = self._list_to_matrix(frombuffer(data[64:128], dtype=float32))
         view_proj_matrix = view_matrix @ proj_matrix

@@ -1,7 +1,6 @@
 #ext
 from orjson import loads
 from urllib.request import urlopen
-from pyMeow import r_float
 from win32api import GetCursorPos
 from time import sleep
 from keyboard import send
@@ -12,15 +11,15 @@ from ctypes import windll
 from data import Offsets
 
 class Orbwalk:
-    def __init__(self, process, base_address):
+    def __init__(self, pm, base_address):
         self.can_attack_time = 0
         self.can_move_time = 0
-        self.process = process
+        self.pm = pm
         self.base_address = base_address
         self.game_time = Offsets.game_time
 
     def get_game_time(self):
-        return r_float(self.process, self.base_address + self.game_time)
+        return self.pm.read_float(self.base_address + self.game_time)
     
     @staticmethod
     def get_attack_time():

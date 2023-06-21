@@ -10,10 +10,10 @@ def drawings(terminate, settings, champion_pointers, on_window):
     ssl._create_default_https_context = ssl._create_unverified_context
     
     #ext
-    from pyMeow import open_process, get_module, get_color, load_font, get_monitor_refresh_rate
+    from pyMeow import get_color, load_font
     from pyMeow import overlay_init, overlay_loop, overlay_close, begin_drawing, end_drawing
     from pyMeow import draw_line, draw_circle, draw_font, gui_progress_bar, gui_text_box
-    from pyMeow import r_uint64
+    from pymem import Pymem
     from win32api import GetSystemMetrics
     from gc import collect as del_mem
     from time import sleep
@@ -44,15 +44,16 @@ def drawings(terminate, settings, champion_pointers, on_window):
         if on_window.value:
             del_mem()
             try:
-                process = open_process(process=Data.game_name_executable)
-                base_address = get_module(process, Data.game_name_executable)['base']
-                local = r_uint64(process, base_address + Offsets.local_player)
-                attr = ReadAttributes(process, base_address)
+                pm = Pymem(Data.game_name_executable)
+                base_address = pm.base_address
+
+                local = pm.read_ulonglong(base_address + Offsets.local_player)
+                attr = ReadAttributes(pm, base_address)
 
                 width = GetSystemMetrics(0)
                 height = GetSystemMetrics(1)
-                world = World(process, base_address, width, height)
-                entity = EntityDrawings(process, base_address, width, height)
+                world = World(pm, base_address, width, height)
+                entity = EntityDrawings(pm, base_address, width, height)
 
                 #if is_active_window():
                 can_track = settings['position_tracker']
@@ -106,8 +107,12 @@ def drawings(terminate, settings, champion_pointers, on_window):
 
                         if can_track:
                             own_pos = world_to_screen(get_view_proj_matrix(), player.x, player.z, player.y)
-                            for entity in entities:
-                                draw_enemy_line(entity, own_pos, width, height)
+                            if not own_pos and not limited_draw:
+                                for entity in entities:
+                                    draw_enemy_line(entity, own_pos, width, height)
+                            elif own_pos:
+                                for entity in entities:
+                                    draw_enemy_line(entity, own_pos, width, height)
 
                         if can_focus:
                             target = select_target(player, entities)

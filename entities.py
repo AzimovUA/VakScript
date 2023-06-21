@@ -1,16 +1,16 @@
-#ext
+# ext
 from collections import namedtuple
-from pyMeow import r_string, r_float, r_bool, r_int, r_ints64
 from math import hypot
 from functools import partial
 
-#own
-from data import Offsets
+# own
+from data import Offsets, Data
 from world_to_screen import World
+
 
 class ReadAttributes:
 
-    def __init__(self, process, base_address):
+    def __init__(self, pm, base_address):
         self.obj_name = Offsets.obj_name
         self.obj_health = Offsets.obj_health
         self.obj_max_health = Offsets.obj_max_health
@@ -31,73 +31,79 @@ class ReadAttributes:
         self.spell_cooldown = Offsets.spell_cooldown
         self.spells_keys = ['Q', 'W', 'E', 'R', 'D', 'F']
         self.game_time = Offsets.game_time
-        self.process = process
+        self.pm = pm
         self.base_address = base_address
         self.PlayerNamedtuple = namedtuple('Player', 'name basic_attack bonus_attack x y z attack_range')
-        self.EnemyNamedtuple = namedtuple('Enemy', 'name health max_health armor basic_attack bonus_attack magic_damage x y z alive targetable visible attack_range')
+        self.EnemyNamedtuple = namedtuple('Enemy',
+                                          'name health max_health armor basic_attack bonus_attack magic_damage x y z alive targetable visible attack_range')
         self.MinionNamedtuple = namedtuple('Minion', 'health armor x y z alive targetable visible')
 
-    
     def read_player(self, local_player):
-        d, process = {}, self.process
-        d['name'] = r_string(process, local_player + self.obj_name)
-        d['basic_attack'] = r_float(process, local_player + self.obj_base_attack)
-        d['bonus_attack'] = r_float(process, local_player + self.obj_bonus_attack)
-        d['x'] = r_float(process, local_player + self.obj_x)
-        d['y'] = r_float(process, local_player + self.obj_y)
-        d['z'] = r_float(process, local_player + self.obj_z)
-        d['attack_range'] = r_float(process, local_player + self.obj_attack_range)
+        d, pm = {}, self.pm
+        d['name'] = pm.read_string(local_player + self.obj_name)
+        d['basic_attack'] = pm.read_float(local_player + self.obj_base_attack)
+        d['bonus_attack'] = pm.read_float(local_player + self.obj_bonus_attack)
+        d['x'] = pm.read_float(local_player + self.obj_x)
+        d['y'] = pm.read_float(local_player + self.obj_y)
+        d['z'] = pm.read_float(local_player + self.obj_z)
+        d['attack_range'] = pm.read_float(local_player + self.obj_attack_range)
         return self.PlayerNamedtuple(**d)
-    
+
     def read_enemy(self, pointer):
-        d, process = {}, self.process
-        d['name'] = r_string(process, pointer + self.obj_name)
-        d['health'] = r_float(process, pointer + self.obj_health)
-        d['max_health'] = r_float(process, pointer + self.obj_max_health)
-        d['armor'] = r_float(process, pointer + self.obj_armor)
-        d['basic_attack'] = r_float(process, pointer + self.obj_base_attack)
-        d['bonus_attack'] = r_float(process, pointer + self.obj_bonus_attack)
-        d['magic_damage'] = r_float(process, pointer + self.obj_magic_damage)
-        d['x'] = r_float(process, pointer + self.obj_x)
-        d['y'] = r_float(process, pointer + self.obj_y)
-        d['z'] = r_float(process, pointer + self.obj_z)
-        d['alive'] = r_int(process, pointer + self.obj_spawn_count) % 2 == 0
-        d['targetable'] = r_bool(process, pointer + self.obj_targetable)
-        d['visible'] = r_bool(process, pointer + self.obj_visible)
-        d['attack_range'] = r_float(process, pointer + self.obj_attack_range)
+        d, pm = {}, self.pm
+        d['name'] = pm.read_string(pointer + self.obj_name)
+        d['health'] = pm.read_float(pointer + self.obj_health)
+        d['max_health'] = pm.read_float(pointer + self.obj_max_health)
+        d['armor'] = pm.read_float(pointer + self.obj_armor)
+        d['basic_attack'] = pm.read_float(pointer + self.obj_base_attack)
+        d['bonus_attack'] = pm.read_float(pointer + self.obj_bonus_attack)
+        d['magic_damage'] = pm.read_float(pointer + self.obj_magic_damage)
+        d['x'] = pm.read_float(pointer + self.obj_x)
+        d['y'] = pm.read_float(pointer + self.obj_y)
+        d['z'] = pm.read_float(pointer + self.obj_z)
+        d['alive'] = pm.read_int(pointer + self.obj_spawn_count) % 2 == 0
+        d['targetable'] = pm.read_bool(pointer + self.obj_targetable)
+        d['visible'] = pm.read_bool(pointer + self.obj_visible)
+        d['attack_range'] = pm.read_float(pointer + self.obj_attack_range)
         return self.EnemyNamedtuple(**d)
-    
+
     def read_minion(self, pointer):
-        d, process = {}, self.process
-        d['health'] = r_float(process, pointer + self.obj_health)
-        d['armor'] = r_float(process, pointer + self.obj_armor)
-        d['x'] = r_float(process, pointer + self.obj_x)
-        d['y'] = r_float(process, pointer + self.obj_y)
-        d['z'] = r_float(process, pointer + self.obj_z)
-        d['alive'] = r_int(process, pointer + self.obj_spawn_count) % 2 == 0
-        d['targetable'] = r_bool(process, pointer + self.obj_targetable)
-        d['visible'] = r_bool(process, pointer + self.obj_visible)
+        d, pm = {}, self.pm
+        d['health'] = pm.read_float(pointer + self.obj_health)
+        d['armor'] = pm.read_float(pointer + self.obj_armor)
+        d['x'] = pm.read_float(pointer + self.obj_x)
+        d['y'] = pm.read_float(pointer + self.obj_y)
+        d['z'] = pm.read_float(pointer + self.obj_z)
+        d['alive'] = pm.read_int(pointer + self.obj_spawn_count) % 2 == 0
+        d['targetable'] = pm.read_bool(pointer + self.obj_targetable)
+        d['visible'] = pm.read_bool(pointer + self.obj_visible)
         return self.MinionNamedtuple(**d)
-    
+
     def read_spells(self, pointer):
-        spells, process = {}, self.process
-        spell_book = r_ints64(process, pointer + self.obj_spell_book, 0x6)
-        game_time = r_float(process, self.base_address + self.game_time)
+        spells, pm = {}, self.pm
+        spell_book = pm.read_bytes(pointer + self.obj_spell_book, 0x30)
+
+        # convert spell_book to list of ints with 6 variables
+        spell_book = [int.from_bytes(spell_book[i:i + 8], byteorder='little') for i in range(0, len(spell_book), 8)]
+        game_time = pm.read_float(self.base_address + self.game_time)
         for i, spell_slot in enumerate(spell_book):
-            level = r_int(process, spell_slot + self.spell_level)
-            cooldown = r_float(process, spell_slot + self.spell_cooldown) + 1.
+            level = pm.read_int(spell_slot + self.spell_level)
+            cooldown = pm.read_float(spell_slot + self.spell_cooldown) + 1.
             cooldown = max(0, cooldown - game_time)
             spells[self.spells_keys[i]] = (level, int(cooldown))
         return spells
-    
-#Entity + EntityDrawings
+
+
+# Entity + EntityDrawings
 def distance(player, target):
     return hypot(player.x - target.x, player.y - target.y)
+
 
 def get_effective_damage(damage, armor):
     if armor >= 0:
         return damage * 100. / (100. + armor)
     return damage * (2. - (100. / (100. - armor)))
+
 
 def get_min_attacks(player, target):
     return target.health / get_effective_damage(player.basic_attack + player.bonus_attack, target.armor)
@@ -108,13 +114,14 @@ class Entity:
     def __init__(self, stats):
         self.stats = stats
         self.radius = self.stats.get_targets_radius()
-    
+
     def in_distance(self, player, target):
-        return distance(player, target) - self.radius.get(target.name, 65.) <= player.attack_range + self.radius.get(player.name, 65.)
-    
+        return distance(player, target) - self.radius.get(target.name, 65.) <= player.attack_range + self.radius.get(
+            player.name, 65.)
+
     def in_distance_minion(self, player, target):
         return distance(player, target) - 65.0 <= player.attack_range + self.radius.get(player.name, 65.)
-    
+
     def is_hurtable(self, target):
         return target.alive and target.visible and target.targetable
 
@@ -126,7 +133,7 @@ class Entity:
                 if target is None or 0 < autos < min_autos:
                     target, min_autos = entity, autos
         return target
-    
+
     def select_by_damage(self, player, targets):
         target, max_damage = None, None
         for entity in targets:
@@ -135,7 +142,7 @@ class Entity:
                 if target is None or damage > max_damage:
                     target, max_damage = entity, damage
         return target
-    
+
     def select_by_distance(self, player, targets):
         target, min_distance = None, None
         for entity in targets:
@@ -144,7 +151,7 @@ class Entity:
                 if target is None or d < min_distance:
                     target, min_distance = entity, d
         return target
-    
+
     def select_lowest_minion(self, player, targets):
         target, min_health = None, None
         for entity in targets:
@@ -152,39 +159,41 @@ class Entity:
                 if target is None or entity.health < min_health:
                     target, min_health = entity, entity.health
         return target
-    
+
     def select_lasthit_minion(self, player, targets):
-        return [target for target in targets if self.in_distance_minion(player, target) and target.health <= get_effective_damage(player.basic_attack + player.bonus_attack, target.armor) and self.is_hurtable(target)]
-    
+        return [target for target in targets if
+                self.in_distance_minion(player, target) and target.health <= get_effective_damage(
+                    player.basic_attack + player.bonus_attack, target.armor) and self.is_hurtable(target)]
+
 
 class EntityDrawings:
 
-    def __init__(self, process, base_address, width, height):
-        self.world = World(process, base_address, width, height)
+    def __init__(self, pm, base_address, width, height):
+        self.world = World(pm, base_address, width, height)
         self.world_to_screen = self.world.world_to_screen_limited
         self.get_view_proj_matrix = self.world.get_view_proj_matrix
-    
+
     def _has_pos(self, target):
-        return self.world_to_screen(self.get_view_proj_matrix(), target.x, target.z, target.y) and target.alive and target.targetable and target.visible
+        return self.world_to_screen(self.get_view_proj_matrix(), target.x, target.z,
+                                    target.y) and target.alive and target.targetable and target.visible
 
     @staticmethod
     def min_attacks(player, target):
         return get_min_attacks(player, target)
-    
+
     @staticmethod
     def max_damage(target):
         return max(target.basic_attack + target.bonus_attack, target.magic_damage)
-    
+
     @staticmethod
     def min_distance(player, target):
         return distance(player, target)
-    
+
     def select_by_health(self, player, targets):
         return min(filter(self._has_pos, targets), key=partial(EntityDrawings.min_attacks, player), default=None)
-    
+
     def select_by_damage(self, player, targets):
         return max(filter(self._has_pos, targets), key=EntityDrawings.max_damage, default=None)
-    
+
     def select_by_distance(self, player, targets):
         return min(filter(self._has_pos, targets), key=partial(EntityDrawings.min_distance, player), default=None)
-    
