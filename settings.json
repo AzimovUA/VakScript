@@ -22,7 +22,7 @@
         "show_turret_range": true,
         "show_hits": true,
         "screen_track": false,
-        "fps": "60"
+        "fps": "75"
     },
     "AutoSmite": {
         "smite": "f",
