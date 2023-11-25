@@ -37,7 +37,7 @@ class AttributesReader(Offsets):
     def read_buffs(self, pointer):
         process = self.process
         buffs = []
-        for i in range(1000):
+        for i in range(200):
             buff_manager = r_uint64(process, pointer + Offsets.buff_manager)
             try:
                 buff = r_uint64(process, buff_manager + 0x10 + 0x8 * i)
