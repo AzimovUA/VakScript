@@ -165,6 +165,7 @@ class MultiprocessingFunctions:
                 self.champion_pointers,
                 self.ward_pointers,
                 self.turret_pointers,
+                self.minion_pointers,
                 self.on_window
             ))
             process.start()

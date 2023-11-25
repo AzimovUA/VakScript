@@ -112,7 +112,7 @@ class Draw:
         draw_circle(pos[0], pos[1], 5.0, color)
 
 
-def drawings(terminate, settings, champion_pointers, ward_pointers, turret_pointers, on_window):
+def drawings(terminate, settings, champion_pointers, ward_pointers, turret_pointers, minion_pointers, on_window):
     """ External drawings process."""
 
     while not terminate.value:
@@ -179,9 +179,42 @@ def drawings(terminate, settings, champion_pointers, ward_pointers, turret_point
                         'perkszombieward': load_texture('wards/sightward.png')
                     }
 
+                    irelia_q_scale = [5, 25, 45, 65, 85]
+
+                    def onhit_noonquiver():
+                        return 20.0
+
+                    def onhit_recurve_bow():
+                        return 15.0
+
+                    def onhit_botrk(target):
+                        dmg = target.health * 0.12
+                        if dmg > 60.0:
+                            return 60.0
+                        return dmg
+
+                    def onhit_doran_ring():
+                        return 5.0
+
+                    def onhit_nashors(ap):
+                        return 15.0 + 0.2 * ap
+
+                    def onhit_wits_end(lvl):
+                        return 11.7 + 3.82 * lvl
+
+                    OnHit_Physical = {
+                        6670: onhit_noonquiver,
+                        1043: onhit_recurve_bow,
+                        3153: onhit_botrk,
+                        1056: onhit_doran_ring,
+                    }
+
+                    OnHit_Magical = {3115: onhit_nashors, 3091: onhit_wits_end}
+
                     while overlay_loop():
                         entities = [attr_reader.read_enemy(pointer) for pointer in champion_pointers]
                         wards = [attr_reader.read_minion(pointer) for pointer in ward_pointers]
+                        minions = [attr_reader.read_minion(pointer) for pointer in minion_pointers]
                         player = attr_reader.read_player(local_player)
                         view_proj_matrix = get_view_proj_matrix()
                         own_pos = world_to_screen(view_proj_matrix, player.x, player.z, player.y)
@@ -235,6 +268,47 @@ def drawings(terminate, settings, champion_pointers, ward_pointers, turret_point
                                 pos = world_to_screen_limited(view_proj_matrix, target.x, target.z, target.y)
                                 if pos:
                                     draw.line_to_enemy(own_pos, pos, 2.0, Colors.Magenta)
+
+                        if player.name == 'Irelia':
+                            total_attack = player.basic_attack + player.bonus_attack
+                            q_minion_damage = 43 + (player.lvl * 12)
+                            physical_onHit = 0.0
+                            magical_onHit = 0.0
+                            passive_damage = 0
+                            q_level = attr_reader.read_spells(local_player)[0]
+                            q_champion_damage = irelia_q_scale[q_level - 1] + (total_attack * 0.6)
+
+                            for buff in player.buffs:
+                                if buff.name == 'ireliapassivestacksmax' and buff.alive:
+                                    passive_damage = 7 + (player.lvl * 3) + (player.bonus_attack * 0.2)
+                                    break
+                            have_botrk = False
+                            for item in player.items:
+                                if item in OnHit_Physical or item in OnHit_Magical:
+                                    if item == 3153:
+                                        have_botrk = True
+                                    elif item == 3115:
+                                        magical_onHit += OnHit_Magical[item](player.magic_damage)
+                                    elif item == 3091:
+                                        magical_onHit += OnHit_Magical[item](player.lvl)
+                                    else:
+                                        # print(f'item: {item}, OnHit_Physical[item]: {OnHit_Physical[item]}')
+                                        physical_onHit += OnHit_Physical[item]()
+                            
+                            for minion in minions:
+                                if not minion.alive or minion.health <= 0:
+                                    continue
+                                if have_botrk:
+                                    physical_onHit_minion = physical_onHit + OnHit_Physical[3153](minion)
+
+                                total_q_damage = q_champion_damage + q_minion_damage + passive_damage + physical_onHit_minion + magical_onHit
+                                if minion.health < total_q_damage:
+                                    pos = world_to_screen_limited(view_proj_matrix, minion.x, minion.z, minion.y)
+                                    if pos:
+                                        draw_line(pos[0] - 30, pos[1] - 45, pos[0] + 30, pos[1] - 45, Colors.Blue, 4.0)
+                                        # draw_font(1, f'Total Q damage: {total_q_damage}. q_champion_damage: {q_champion_damage}. q_minion_damage: {q_minion_damage}.', pos[0], pos[1] - 50, 20, 2, Colors.Blue)
+                                        # draw_font(1, f'passive_damage: {passive_damage}. physical_onHit: {physical_onHit_minion}. magical_onHit: {magical_onHit}.', pos[0], pos[1] - 30, 20, 2, Colors.Blue)
+                                        # draw_font(1, f'armor: {minion.armor}', pos[0], pos[1] - 10, 20, 2, Colors.Blue)
                         
                         end_drawing()
 
