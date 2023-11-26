@@ -300,12 +300,14 @@ def drawings(terminate, settings, champion_pointers, ward_pointers, turret_point
                                     continue
                                 if have_botrk:
                                     physical_onHit_minion = physical_onHit + OnHit_Physical[3153](minion)
+                                else:
+                                    physical_onHit_minion = physical_onHit
 
                                 total_q_damage = q_champion_damage + q_minion_damage + passive_damage + physical_onHit_minion + magical_onHit
                                 if minion.health < total_q_damage:
                                     pos = world_to_screen_limited(view_proj_matrix, minion.x, minion.z, minion.y)
                                     if pos:
-                                        draw_line(pos[0] - 30, pos[1] - 45, pos[0] + 30, pos[1] - 45, Colors.Blue, 4.0)
+                                        draw_line(pos[0] - 30, pos[1] - 49, pos[0] + 30, pos[1] - 49, Colors.Magenta, 4.0)
                                         # draw_font(1, f'Total Q damage: {total_q_damage}. q_champion_damage: {q_champion_damage}. q_minion_damage: {q_minion_damage}.', pos[0], pos[1] - 50, 20, 2, Colors.Blue)
                                         # draw_font(1, f'passive_damage: {passive_damage}. physical_onHit: {physical_onHit_minion}. magical_onHit: {magical_onHit}.', pos[0], pos[1] - 30, 20, 2, Colors.Blue)
                                         # draw_font(1, f'armor: {minion.armor}', pos[0], pos[1] - 10, 20, 2, Colors.Blue)
