@@ -17,6 +17,14 @@ from world_to_screen import World
 from settings import jsonGetter
 from utils import safe_title, debug_info
 
+"""
+TODO:
+    - Lower ward tracker thikness.
+    - Add draw_texture funtion to Draw class for future implements or imports.
+    - Remove try-except in ward tracker. (name reading from entities/read_minion will be removed)
+    - Fix black screen.
+"""
+
 class Colors:
     Lightgray = new_color(200, 200, 200, 255)
     Gray = new_color(130, 130, 130, 255)

@@ -13,6 +13,13 @@ from mouse import right_click
 from data import Offsets
 from utils import send_key
 
+"""
+TODO:
+    - Update windup formula from: https://leagueoflegends.fandom.com/wiki/Basic_attack
+      and use GENERAL FORM for walk.Normal v2
+    - Fix Kalista disconnect issue. 
+"""
+
 class Orbwalk:
     def __init__(self, process, base_address):
         self.process = process

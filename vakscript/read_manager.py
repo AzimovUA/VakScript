@@ -4,6 +4,11 @@ from pyMeow import r_string, r_int, r_int64, r_uint64, r_ints64
 #own
 from data import Offsets
 
+"""
+TODO:
+    - Optimize search_mode 3
+"""
+
 class ListReader:
     def __init__(self, process, base_address, local_team):
         self.process = process

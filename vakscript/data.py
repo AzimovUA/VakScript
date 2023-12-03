@@ -1,6 +1,11 @@
 from os import path
 import configparser
 
+"""
+TODO:
+    - bonus_attack_speed offset in offsets.ini is wrong
+"""
+
 # Patch 13.22
 class Offsets:
     offsets_file = configparser.ConfigParser()

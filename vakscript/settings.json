@@ -5,7 +5,7 @@
         "lasthit": "x",
         "attack": "a",
         "range": "o",
-        "kiting_mode": "Normal v2",
+        "kiting_mode": "Normal",
         "orbwalk_prio": "Less Basic Attacks",
         "lasthit_mode": "Manual",
         "press_range": true,

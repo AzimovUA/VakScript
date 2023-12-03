@@ -8,6 +8,15 @@ from pyMeow import r_string, r_float, r_bool, r_int, r_ints64, r_uint64
 #own
 from data import Offsets
 
+"""
+TODO:
+    - Remove name reading from read_minion. (bugs)
+    - Add read_ward
+    - Optimize buffs and items reading.
+    - Add lasthit function in target selector.
+
+"""
+
 
 class AttributesReader(Offsets):
     def __init__(self, process, base_address):

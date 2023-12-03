@@ -8,6 +8,15 @@ from json import dump
 #own
 from data import Info
 
+"""
+TODO: 
+    - Check if evtShowCharacterMenu isn't bug.
+
+vak code changes:
+    - settings_json updated to latest settings.json file version.
+
+"""
+
 settings_json = {
     'Spaceglider': {
         'orbwalk' : 'space',
@@ -26,17 +35,21 @@ settings_json = {
         "show_focused": True,
         "show_healths": True,
         "show_gold": False,
-        "show_spells": True,
+        "show_spells": False,
         "show_player_range": True,
         "show_enemy_range": True,
         "show_turret_range": True,
         "show_hits": True,
-        "screen_track": False
+        "vision_tracker": True,
+        "screen_track": False,
+        "fps": "60" 
     },
     'AutoSmite' : {
         'smite' : 'f',
         'update' : 'q',
         'randb' : False
+    },
+    "Scripts" : {
     }
 }
 

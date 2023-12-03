@@ -18,6 +18,12 @@ from data import Offsets, Info, VK_CODES
 from world_to_screen import World
 from utils import send_key, debug_info
 
+"""
+TODO:
+    - Fix Username API Request or read in memory instead.
+
+"""
+
 class Asmite:
 
     def __init__(self, settings):

@@ -16,6 +16,11 @@ from world_to_screen import World
 from entities import TargetSelector, AttributesReader
 from utils import press_key, release_key, debug_info
 
+"""
+TODO:
+    - Tests with entities.py and orbwalker.py changes.
+"""
+
 
 def spaceglider(terminate, settings, champion_pointers, minion_pointers, on_window):
     """ Auto kite process."""

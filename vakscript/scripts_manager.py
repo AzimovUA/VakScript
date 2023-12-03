@@ -20,6 +20,13 @@ from world_to_screen import World
 from utils import safe_title
 from settings import jsonGetter, jsonSetter
 
+
+"""
+TODO:
+    - Remove re-writting of Colors and Drawings class. Import from drawings.py instead.
+    - Check code.
+"""
+
 class Colors:
     Lightgray = new_color(200, 200, 200, 255)
     Gray = new_color(130, 130, 130, 255)

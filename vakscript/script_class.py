@@ -2,6 +2,11 @@ from multiprocessing import Value
 from dearpygui.dearpygui import add_checkbox, tree_node
 from settings import jsonSetter, jsonGetter
 
+"""
+TODO:
+    - Check code.
+"""
+
 class UserScript:
     def __init__(self):
         self.script_name = __name__

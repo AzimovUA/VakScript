@@ -11,6 +11,12 @@ from requests import get
 from data import Info
 from utils import debug_info
 
+"""
+TODO:
+    - Update default windup modifier.
+    - Add stats if its needed.
+"""
+
 class Stats:
     def __init__(self):
         while True:

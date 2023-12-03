@@ -8,6 +8,11 @@ from multiprocessing_functions import MultiprocessingFunctions
 from gui import show_gui
 from scripts_manager import load_scripts
 
+"""
+TODO:
+    - Optimize scripts loader.
+"""
+
 if __name__ == '__main__':
     freeze_support() #required for pyinstaller --onefile
 

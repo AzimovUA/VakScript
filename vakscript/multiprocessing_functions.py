@@ -19,6 +19,11 @@ from stats import Stats
 from utils import is_active_window, debug_info
 from scripts_manager import execute_scripts
 
+"""
+TODO:
+    - Optimize wards reading.
+"""
+
 requests.packages.urllib3.disable_warnings()
 ssl._create_default_https_context = ssl._create_unverified_context
 
